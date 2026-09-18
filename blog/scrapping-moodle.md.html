@@ -1,0 +1,79 @@
+<html>
+  <head>
+    <title>panic_error!</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="stylesheet" href="../estilo.css">
+  </head>
+  <body>
+    <header>
+      <h1>panic_error!</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Inicio</a></li>   
+        <li><a href="../blog/index.html">Blog</a></li>   
+      </ul>
+    </nav>
+    <main> 
+      <section id="signs">
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="../img/insignia_cc.png" /></a>
+        <a href="https://blogblog.es"><img src="../img/insignia_blogblog.png" /></a>
+        <img src="../img/insignia_no_ai.png" />
+      </section>
+      <section id="blog-post">
+	    <h1>Extrayendo información de Moodle</h1>
+<p>Por razones que no vienen al caso, este curso he necesitado recabar información
+sobre la estructura interna de un CMS Moodle. Este gestor de contenidos, para quien no lo conozca es muy usado en docencia para la gestión de curso online, aulas virtuales, gestión de calificaciones, etc.  En concreto he necesitado cargar una base de datos con los cursos creados de los profesores de mi centro, los participantes de estos y sus últimos accesos. Esta información es sencilla de obtener si tienes permisos de administración pero no era esta mi situación. Este Moodle no está administrado directamente por mi sino que es gestionado por mi administración autonómica por lo que todo quedaba reducido a solicitar esta información a los administradores o bien obtenerla yo mismo a través de la extracción de los datos usando HTTP. Lo que viene siendo <em>web scrapping</em> de toda la vida. </p>
+<p>Hoy en día extraer información usando <em>scripts</em> automatizados no es muy difícil siempre y cuando la web en cuestión no ponga obstáculos serios. En mi caso ha sido fácil. Únicamente he necesitado la librería <code>request</code> para iniciar y gestionar una sesión autenticada sobre la que ir solicitando recursos HTTP y la librería <code>BeautifulSoup</code> para procesar el fichero HTML recibido y extraer de el fácilmente la información que me interesa. Algo a tener en cuenta es la necesidad de no incordiar demasiado al servicio contra el que estás conectado. Levantar gran número de hilos o peticiones simultáneas puede ser fácilmente detectado y terminará con tu dirección IP o tu credencial de usuario bloqueada. </p>
+<p>Como la información no era algo que necesitara tener de forma apremiante, construí mi script para incluir latencias aleatorias de varios segundos entre peticiones y así evitar llamar mucho la atención. También evité tener que ejecutar toda la extracción de una vez y elaboré un mecanismo para poder ir lanzándola a ratos y que esta fuera descargándose en periodos separados durante varios días.</p>
+<p>Os dejo una pequeña muestra sobre como crear y manejar una sesión autenticada con la que solicitar las páginas situadas tras el formulario de inicio de sesión.</p>
+<pre><code>import requests
+from bs4 import BeautifulSoup
+
+
+BASE_URL = &quot;https://url-base-de-tu-servicio-mooodle.org&quot;
+
+CREDENTIALS = {
+    &quot;username&quot;: &quot;tunombredeusuario&quot;,
+    &quot;password&quot;: &quot;LaContraseña&quot;
+}
+
+##
+## Autentifico la sesión y obtengo un token
+##
+
+session = requests.Session()
+login_page = session.get(f&quot;{BASE_URL}/login/index.php&quot;)
+soup = BeautifulSoup(login_page.text, &quot;html.parser&quot;)
+token = soup.find(&quot;input&quot;, {&quot;name&quot;: &quot;logintoken&quot;})[&quot;value&quot;]
+
+CREDENTIALS[&quot;logintoken&quot;]=token
+
+##
+## Uso el token para comprobar que estoy autenticado correctamente
+##
+resp = session.post(f&quot;{BASE_URL}/login/index.php&quot;, data=CREDENTIALS)
+if not any(&quot;MoodleSession&quot; in cookie.name for cookie in session.cookies):
+    print(&quot;⚠️ No hay cookie de sesión; el login falló.&quot;)
+    sys.exit()
+
+##
+## Pedimos cualquier página de la zona tras el login
+##
+page = sesion.get(f&quot;{BASE_URL}/course/index.php&quot;)
+soup = BeautifulSoup(page.text, &quot;html.parser&quot;)
+
+select = soup.find(&quot;select&quot;)
+# ...
+</code></pre>
+<hr />
+<p>Noviembre 2025</p>
+      </section>
+    </main>
+  </body>
+</html>

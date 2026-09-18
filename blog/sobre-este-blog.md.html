@@ -1,0 +1,166 @@
+<html>
+  <head>
+    <title>panic_error!</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="stylesheet" href="../estilo.css">
+  </head>
+  <body>
+    <header>
+      <h1>panic_error!</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Inicio</a></li>   
+        <li><a href="../blog/index.html">Blog</a></li>   
+      </ul>
+    </nav>
+    <main> 
+      <section id="signs">
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="../img/insignia_cc.png" /></a>
+        <a href="https://blogblog.es"><img src="../img/insignia_blogblog.png" /></a>
+        <img src="../img/insignia_no_ai.png" />
+      </section>
+      <section id="blog-post">
+	    <h1>Como construyo esta web</h1>
+<p>Hace casi dos años que empecé a publicar este blog. Anteriormente he tenido
+otros, en otros formatos: Wordpress, Blogger, Github, etc. Centrados en
+temáticas concretas y siempre quedaban abandonados por pereza y desánimo de
+escribir generalmente. Así que al replantearme lo de escribir de nuevo en mi
+blog me centré en dos aspectos sobre los que haría girar esto: </p>
+<ul>
+<li>
+<p>El blog sería totalmente generalista. Escribiría de cualquier asunto fuera
+  cual fuera su temática: programación, libros, series, pensamientos, etc.</p>
+</li>
+<li>
+<p>Quería algo totalmente construido por mi, estático, autoalojado y sin
+  maquinaria adicional de ningún tipo. Algo basado en la llamada <a href="https://web0.small-web.org/">Small
+  Web</a> o web0.</p>
+</li>
+</ul>
+<p>Los contenidos deberían quedar plasmados en simples archivos en formato Markdown
+y de ahí construir una página principal, un índice de artículos ordenados por
+fecha y alguna cosa más que se me ocurriera. Me puse manos a la obra con un
+simple <a href="https://github.com/sdemingo/web/blob/main/build">script de Python de 500
+líneas</a> (que podría ser mucho
+más limpio y compacto) surgió esta web.</p>
+<p>Hoy he aprovechado a darle una capa de pintura nueva y actualizar algo la
+visualización. Así que aprovechando que tengo el salón recién pintado vengo a
+hablaros de como funciona el invento y así, quien le apetezca tener un rincón
+personal, sencillo y práctico en Internet puede copiarme la idea. El script de
+construcción tiene la siguiente funcionalidad:</p>
+<ul>
+<li>Convierte cada artículo en Markdown en un documento en HTML</li>
+<li>Crea un documento índice en HTML donde cada de los anteriores está enlazado
+  indicando la fecha de publicación</li>
+<li>Crea un feed RSS para que quien quiera pueda estar al día de mis publicaciones</li>
+<li>Construye un documento HTML con las últimas lecturas que he anotado en
+  Goodreads</li>
+<li>Repite todo lo anterior exportándolo todo a
+  <a href="https://geminiprotocol.net/docs/es/faq.gmi">Gemini</a></li>
+</ul>
+<h2>Construcción del blog</h2>
+<p>La base principal de la web claramente es el blog. Cuando pensé en como
+organizar mis artículos quería que cada uno de ellos estuviera aislado en un
+fichero diferente en mi disco. Quería además poder nombrar ese fichero usando
+una cadena de letras que hiciera referencia al título. Nada de numerajos para la
+fecha. Usar fechas en formato numérico para nombrar ficheros utilizando el
+formato <code>AAAAMMDD</code> (siendo AAAA el año, MM el mes y DD el día) es obviamente la
+solución más sencilla para tener perfectamente ordenados los ficheros del
+blog. Te soluciona fácilmente el problema de ir procesándolos en orden también,
+pues el sistema operativo le dará a Python una lista ya ordenada con ellos. Pero
+yo no quería este formato. </p>
+<p>Así que en un directorio guardo todos mis artículos nombrados con palabras y
+guiones y además, almaceno un fichero adicional donde relaciono la fecha de
+publicación de cada artículo y el nombre del fichero donde escribí el
+artículo. Así tengo el problema solucionado. Algo similar a:</p>
+<pre><code>25/04/2022  articulo-inicial.md libros,pensamientos
+23/07/2022  otro-articulo-mas-sobre-otra-cosa.md novedades
+30/11/2022  seguimos-escribiendo.md novedades
+...
+</code></pre>
+<p>En este fichero guardo también una serie de palabras clave o categorías que
+definen la temática del artículo y que irán reflejadas en el índice final del
+blog. Están colocadas en la tercera columna, tras el nombre del fichero de cada
+artículo. Para convertir cada documento Markdown en HTML simplemente utilizo la
+librería <a href="https://pypi.org/project/Markdown/">Markdown</a> de Python. Y tras
+obtener el HTML en crudo le aplico una plantilla para adornarlo con la
+estructura HTML básica que quiero para mi artículo. Esto lo hago usando objetos
+<code>Template</code>. Evidentemente tengo guardado los ficheros plantilla en otro
+directorio aparte.</p>
+<pre><code>rawhtml = markdown.markdown(mdcontent)
+  html=postTemplate.substitute(post=rawhtml,post_title=title)
+  with open(HTML_ROOT + HTML_BLOG + &quot;/&quot; +mdfile+&quot;.html&quot;,&quot;w&quot;) as fh:
+    fh.write(html)
+    fh.close();
+</code></pre>
+<h2>Construcción del feed RSS</h2>
+<p>Cuando construí el blog quería también tener un feed RSS para permitir que todo
+aquel que quisiera pudiera suscribirse a mis actualizaciones. Para generarlo
+utilizo la librería
+<a href="https://pypi.org/project/feedgenerator/">FeedGenerator</a>. Esta librería es muy
+sencilla de usar y basta con ir artículo a artículo construyendo una entrada
+nueva en el feed con los datos que nos interesen de cada artículo:</p>
+<pre><code>for fileInfo in files:
+    fe = fg.add_entry()
+    url=&quot;http://&quot;+urllib.parse.quote(&quot;panicerror.org/blog/&quot;+fileInfo[0]+&quot;.html&quot;)
+    fe.id(url)
+    fe.title(fileInfo[1])
+    tdate=datetime.strptime(fileInfo[2],&quot;%d/%m/%Y&quot;).replace(tzinfo=timezone.utc)
+    fe.published(tdate)
+    fe.updated(tdate)
+    fe.content(fileInfo[5],type=&quot;html&quot;)
+    fe.link(href=url)
+</code></pre>
+<p>Al principio no metía el texto completo de los artículos en el feed simplemente
+por no llenarlo en exceso pero luego cambié de opinión. Yo mismo soy de los que
+les gusta leer nuevos post directamente en el lector de feeds y no me gusta que
+me obliguen a salir de el, así que cambié y ahora meto todo el contenido del
+artículo.</p>
+<h2>Lista de lecturas</h2>
+<p>Una cosa que añadí más tarde es los últimos libros que he leído. Estos los saco
+de mi feed de Goodreads. El feed lo obtengo a través de una url con todas mis
+lecturas que proceso con
+<a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">BeautifulSoup</a>. Esta
+archiconocida librería es una de las mejores a la hora de <em>scrapear</em> fácilmente
+contenido web. Simplemente busco etiquetas con la clase <code>item</code> y de ahí extraigo
+los diferentes atributos de cada lectura: el título, el autor, incluso la imagen
+de portada.</p>
+<pre><code>for item in soup.findAll(&quot;item&quot;):
+      title=item.title.text
+      imglink=item.book_medium_image_url.text
+      booklink=item.link.text
+      author=item.author_name.text
+      description=item.book_description.text
+      read_at=item.user_read_at.text
+      reads.append((title,author,imglink,booklink,description,read_at))
+</code></pre>
+<h2>Exportar a Gemini</h2>
+<p>Todo esto lo quería también publicar en mi cápsula Gemini que tengo alojada en
+el tilde hispanohablante <a href="https://texto-plano.xyz/">TextoPlano</a>. Para convertir
+a Gemtext cada archivo Markdown simplemente utilizo la librería
+<a href="https://pypi.org/project/md2gemini/">md2gemini</a>. Al principio yo mismo hacía la
+conversión pero resulta más sencillo utilizar esta librería porque reconoce
+casos que yo no llegaba a terminar de procesar. </p>
+<pre><code>gemini = md2gemini(markdown, links=&quot;at-end&quot;)
+</code></pre>
+<p>La generación del índice en la cápsula gemini lo realizo usando el mismo proceso
+de plantillas o <em>templates</em> que uso para la publicación en HTML.</p>
+<h2>Y esto sería todo</h2>
+<p>El script es tremendamente artesanal y no creo que pueda ser utilizado
+directamente por nadie pero pongo todo esto por aquí por si os sirve de
+inspiración para crear vuestra propia web autoalojada. Existen multitud de
+generadores sencillos que os permitirán hacer cosas parecidas de forma mucho más
+profesional como Pelican, Github Pages, o Codeberg. Pero a mi, personalmente me
+encanta haber perdido el tiempo en hacerme mi propio apaño.</p>
+<hr />
+<p>Noviembre 2023</p>
+      </section>
+    </main>
+  </body>
+</html>

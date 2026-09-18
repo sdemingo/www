@@ -1,0 +1,143 @@
+<html>
+  <head>
+    <title>panic_error!</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="stylesheet" href="../estilo.css">
+  </head>
+  <body>
+    <header>
+      <h1>panic_error!</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Inicio</a></li>   
+        <li><a href="../blog/index.html">Blog</a></li>   
+      </ul>
+    </nav>
+    <main> 
+      <section id="signs">
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="../img/insignia_cc.png" /></a>
+        <a href="https://blogblog.es"><img src="../img/insignia_blogblog.png" /></a>
+        <img src="../img/insignia_no_ai.png" />
+      </section>
+      <section id="blog-post">
+	    <h1>Buscando ficheros con find</h1>
+<blockquote>
+<p>AVISO: Este tutorial es muy antiguo y la información aquí recogida puede estar muy desactualizada.</p>
+</blockquote>
+<p>Find es un comando para buscar ficheros en Unix. Find busca y encuentra
+ficheros según los valores asociados a una serie de reglas predefinidas
+por el. Para tener un conocimiento de todas sus reglas y de los posibles
+valores asociados a ellas se recomienda leer su página de manual.</p>
+<p>En este breve tutorial se muestra el uso de dos reglas específicas:
+-exec y -perm</p>
+<h2>Ejecución de comandos a través de find</h2>
+<p>Permite ejecutar procesos por cada fichero o directorio coincidente con
+los patrones de búsqueda indicados. En el primero de los ejemplos
+siguientes se ejecutará un <code>ls -l</code> por cada fichero bajo el directorio en el que nos encontremos. En el segundo, se ejecutará un cat igualmente, con cada fichero bajo el
+directorio en el que estemos situados. <strong>Es importante respetar el espacio tras el comando y terminar el comando con la coletilla <code>\;</code></strong></p>
+<pre><code>$ find . -type f -exec ls -l {} \;
+$ find . -type f -exec cat {} \;
+</code></pre>
+<p>Podemos ejecutar varios comandos, simplemente repitiendo la regla <code>-exec</code> y
+de esta forma concatenar diferentes ejecuciones por cada coincidencia.</p>
+<pre><code>$ find . -type f -exec cat {} \; -exec echo &quot;----separador---&quot; \;
+</code></pre>
+<p>En el caso de que necesitemos que los comandos ejecutados tras <code>-exec</code>
+redireccionen sus entradas o salidas, lo mejor para no confundir
+sintáxis con la del propio <code>find</code> es arrancar con <code>-exec</code> una shell sh y
+pasarle a ella el comando que queramos ejecutar:</p>
+<pre><code>$ find . -type f -exec sh -c 'sed s/la/lo/ {} &gt; {}.x' \;
+</code></pre>
+<h2>Búsqueda de archivos según sus permisos</h2>
+<p>Con <code>find</code> también podemos realizar búsquedas a partir de unos permisos
+dados. Esta regla se denomina <code>-perm</code> y tiene una sintáxis propia que
+debemos conocer. Tras <code>-perm</code> situaremos siempre la combinación de
+permisos (en octal o de forma textual) pero estos pueden ir precedidos
+de '-', '/' o nada.</p>
+<ul>
+<li>
+<p><code>-perm mode</code>: Busca ficheros con esa combinación exacta de permisos.
+    Aquí si podemos usar el modo octal sin problemas</p>
+</li>
+<li>
+<p><code>-perm -mode</code>: Busca ficheros que cumplan todas las combinaciones de
+    permisos asignadas en mode de forma inclusiva (Y). Por ejemplo:</p>
+<ul>
+<li><code>-perm -ug+w</code> : Todos los fichero que permitan 'w' al
+    propietario Y al grupo</li>
+<li><code>-perm -u+rw</code> : Todos los fichero que permitan al propietario
+    'r' Y 'w'</li>
+<li><code>-perm -+r</code> : Todos los ficheros que permitan 'r' al
+    propietario, al grupo Y a los demás</li>
+<li><code>-perm -u+r</code> : Todos los ficheros que permitan 'r' al
+    propietario (aquí daría igual usar esta o la siguiente)</li>
+</ul>
+</li>
+<li>
+<p><code>-perm /mode</code>: Busca ficheros que cumplan todas las combinaciones de
+    permisos asignadas en mode de forma exclusiva (O). Por ejemplo:</p>
+<ul>
+<li><code>perm /ug+w</code>: Todos los fichero que permitan 'w' al propietario
+    O al grupo</li>
+<li><code>perm /u+rw</code>: Todos los fichero que permitan al propietario 'r'
+    O 'w'</li>
+<li><code>perm /+r</code>: Todos los ficheros que permitan 'r' al propietario,
+    al grupo O a los demás</li>
+</ul>
+</li>
+</ul>
+<p>Nótese que en este último, al usar O, <strong>no tienen porque cumplirse todas
+las combinaciones, solo una de ellas.</strong></p>
+<h2>Ejemplos de búsquedas a partir de permisos</h2>
+<p>A continuación se muestra un ejemplo de uso de find con la regla perm
+partiendo de cuatro ficheros con diferentes permisos en un mismo
+directorio.</p>
+<pre><code>$ ls -l
+rw-rw-rw  ...  f1
+r--rw-r-- ...  f2
+---r--rw- ...  f3
+r--r--r-- ...  f4
+
+$ find . -perm -ug+w
+f1
+
+$ find . -perm -u+rw
+f1
+
+$ find . -perm -+r
+f4
+f1
+f2
+
+$ find . -perm -u+r
+f4
+f1
+f2 
+
+$ find . -perm /ug+w
+f1
+f2
+
+$ find . -perm /u+rw
+f4
+f1
+f2
+
+$ find . -perm /+r
+f4
+f1
+f3
+f2
+</code></pre>
+<hr />
+<p>Octubre 2007</p>
+      </section>
+    </main>
+  </body>
+</html>

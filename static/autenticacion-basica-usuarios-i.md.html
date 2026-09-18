@@ -1,0 +1,107 @@
+<html>
+  <head>
+    <title>panic_error!</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="stylesheet" href="../estilo.css">
+  </head>
+  <body>
+    <header>
+      <h1>panic_error!</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Inicio</a></li>   
+        <li><a href="../blog/index.html">Blog</a></li>   
+      </ul>
+    </nav>
+    <main> 
+      <section id="signs">
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="../img/insignia_cc.png" /></a>
+        <a href="https://blogblog.es"><img src="../img/insignia_blogblog.png" /></a>
+        <img src="../img/insignia_no_ai.png" />
+      </section>
+      <section id="blog-post">
+	    <h1>Autenticación básica de usuarios (I)</h1>
+<p>La autenticación de usuarios es un paso básico y primordial en toda aplicación
+web y si estamos trabajando fuera del Google App Engine tendremos que montarnos
+nosotros mismos el mecanismo. </p>
+<p>Actualmente existen varias librerías en Go que ya permiten solucionar el
+problema y que recomiendo si se quiere algo robusto para producción. Si lo que
+queremos es aprender algo sobre el tema nada mejor que abordar el asunto desde
+un punto de vista artesanal. Para ello me he inspirado (como no) en un <a href="http://stackoverflow.com/questions/25218903/how-are-people-managing-authentication-in-go/27470944#27470944">post de
+StackOverflow</a> donde se trata el tema y se propone un pequeño flujo para
+controlar el formulario de entrada y la gestión de la sesión del
+usuario. Resumiendo el asunto queda de la siguiente manera:</p>
+<ul>
+<li>El usuario manda sus credenciales desde un formulario via POST sobre TLS</li>
+<li>El servidor crea una nueva sesión y la asigna una clave aleatoria que se envía
+    al usuario como una cookie. Además esta sesión se añade a una tabla de sesiones abiertas</li>
+<li>Cada manejador que requiera autenticar al usuario comprueba la cookie en cada petición y recupera la sesión almacenada de la tabla</li>
+</ul>
+<p>Hablaré del mecanismo de sesiones sobre cookies en el próximo post. En este voy
+a centrarme en conseguir una conexión segura sobre TLS a nuestro servidor
+web. Para ello lo primero que necesitamos es un <a href="https://es.wikipedia.org/wiki/X.509">certificado X.509</a> necesario para
+negociar con el cliente los parámetros del cifrado de TLS. Esto lo podemos hacer
+fácilmente con el comando <code>openssl</code>.</p>
+<pre><code>openssl genrsa -out private_key 2048
+openssl req -new -x509 -key private_key -out public_key -days 365
+</code></pre>
+<p>Una vez hecho esto solo tenemos que sustituir la llamada clásica al método
+<code>http.ListenAndServe</code> por <code>http.ListenAndServeTLS</code> pasándole el puerto donde
+escuchamos y las rutas de los ficheros de nuestro certificado. Antes de terminar
+he añadido una <em>goroutine</em> para redireccionar todo el tráfico que pueda seguir
+teniendo sobre el puerto inseguro de HTTP hacia el puerto seguro que escucha en
+TLS.</p>
+<pre><code>package main
+
+import (
+        "log"
+        "net/http"
+)
+
+const (
+        TLSPORT    = ":8443"
+        PORT       = ":8080"
+        PRIV_KEY   = "./private_key"
+        PUBLIC_KEY = "./public_key"
+        DOMAIN     = "localhost"
+)
+
+func main() {
+
+        http.HandleFunc("/", rootHandler)
+
+        // Redirect all requests to TLS socket
+        go func() {
+                err := http.ListenAndServe(PORT, http.RedirectHandler("https://"+DOMAIN+TLSPORT, http.StatusFound))
+                if err != nil {
+                        panic("Error: " + err.Error())
+                }
+        }()
+
+        // Listen on secure port
+        err := http.ListenAndServeTLS(TLSPORT, PUBLIC_KEY, PRIV_KEY, nil)
+        if err != nil {
+                panic("Error: " + err.Error())
+        }
+}
+
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+  // do something ...
+}
+</code></pre>
+<p>En el próximo post dentro de unos días hablaré de como implementar el mecanismo
+de autenticación de usuarios y la gestión de la sesión de trabajo en el
+servidor.</p>
+<hr />
+<p>Febrero 2016</p>
+      </section>
+    </main>
+  </body>
+</html>

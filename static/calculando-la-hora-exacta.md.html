@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <title>panic_error!</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="stylesheet" href="../estilo.css">
+  </head>
+  <body>
+    <header>
+      <h1>panic_error!</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Inicio</a></li>   
+        <li><a href="../blog/index.html">Blog</a></li>   
+      </ul>
+    </nav>
+    <main> 
+      <section id="signs">
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="../img/insignia_cc.png" /></a>
+        <a href="https://blogblog.es"><img src="../img/insignia_blogblog.png" /></a>
+        <img src="../img/insignia_no_ai.png" />
+      </section>
+      <section id="blog-post">
+	    <h1>Calculando la hora exacta</h1>
+<p>Una de las primeras nociones básicas que más desconciertan al que se inicia en
+la astronomía de posición es el cálculo de la hora con respecto a la posición
+del Sol. Todos tenemos la intuición de que la hora de cada lugar se establece en
+base a una referencia llamada <a href="http://es.wikipedia.org/wiki/Meridiano_de_Greenwich">Greenwich</a>, en Londres. A partir de ahí, teniendo
+en cuenta la longitud de nuestra ubicación respecto de este lugar se calcula
+nuestro desfase horario. Pero el tema del cálculo de la hora es algo más
+complicado en parte por el complejo sistema mecánico que forman la Tierra y el
+Sol.</p>
+<p>En este sistema tenemos que la Tierra se mueve con respecto al Sol de forma
+irregular durante todo su recorrido (traslación) debido a que esta orbita es
+elíptica. Esta irregularidad fue formulada por <a href="http://es.wikipedia.org/wiki/Leyes_de_Kepler">Kepler en sus leyes sobre el
+movimiento orbital</a>. Simplificando mucho diremos que la Tierra se mueve más lenta
+en su <em>Afelio</em>, punto en el que se encuentra más lejos del sol y se mueve más
+rápido en su <em>Perihelio</em>, punto en el que está más cerca del sol. Esto es fácil
+de entender si nos imaginamos el sistema Tierra-Sol en un plano vertical en
+lugar de horizontal (como se suele ilustrar) con el Sol fijo en su centro.  La
+Tierra asciende desde el <em>Perihelio</em> rápidamente hasta alcanzar el <em>Afelio</em> (el
+punto más alto en este caso) y lentamente comienza su caída hacia el Sol de
+nuevo aumentando su velocidad por el otro lado hasta traspasar la posición del
+astro. </p>
+<p>Además del movimiento orbital, nuestro planeta está sometido a otras
+perturbaciones que hacen que el llamado <a href="http://es.wikipedia.org/wiki/Tiempo_solar_verdadero">Tiempo Solar Verdadero</a>, el que marca el
+reloj de Sol, y el tiempo que marcan nuestros relojes no sean el mismo. Para
+calcular esta diferencia no existe una ecuación o formula fija. Tenemos sin
+embargo, diferentes heurísticas con las que poder aproximar esta cantidad que
+varia aproximadamente desde cero hasta más/menos 15 minutos y que para complicar
+más las cosas, hemos de recalcular cada pocos años.</p>
+<p class="imagen"><img alt="" src="../img/ecuacion-tiempo.png" /></p>
+<p>Buscando un rato encontré hasta tres heurísticas que aproximan la diferencia
+bastante bien. La gráfica muestra una de ellas y, en ella, se puede observar
+que el mínimo se produce sobre el 19 de Febrero y el máximo el 2 de
+Noviembre. Igualmente, la diferencia de tiempos se hace cero cuatro veces al
+año, aproximadamente en los dos solsticios y en los dos equinoccios. Tenéis
+todas estas funciones <a href="https://github.com/sdemingo/astro/blob/master/tiempo.py">implementadas en mi Github por si queréis ojearlas</a>.</p>
+<p>Como curiosidad antes de terminar debo añadir que esta ecuación tiene su reflejo
+geométrico en el <a href="http://es.wikipedia.org/wiki/Analema">Analema</a> o curva que describe las diferentes posiciones del Sol
+todos los días del año observado desde el mismo lugar a la misma hora civil. Si
+queréis más información sobre como construir esta figura y vuestro propio reloj
+de Sol podéis usar las instrucciones que Álvaro G. Sotillo (un antiguo
+compañero) <a href="https://sites.google.com/site/alvarogonzalezsotillo/home/blog/controlando-el-universo-mi-propio-reloj-de-sol">tiene publicadas en su web</a>.</p>
+<hr />
+<p>Enero 2015</p>
+      </section>
+    </main>
+  </body>
+</html>

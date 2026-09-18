@@ -1,0 +1,385 @@
+
+/* Estilos generales */
+@font-face{
+    font-family:'Titulo secundario';
+    src:url(fonts/RobotoMono/RobotoMono-Regular.ttf);
+}
+
+@font-face{
+    font-family:'Titulo principal';
+    src:url(fonts/RobotoMono/RobotoMono-Bold.ttf);
+}
+
+@font-face{
+    font-family:'Texto';
+    src:url(fonts/Noto/NotoSans-Light.ttf);
+}
+
+
+body {
+    font-family: 'Texto', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    width:65%;
+    max-width:900px;
+    margin:0 auto;
+    margin-bottom:100px;
+    font-size:1.1em;
+}
+
+header {
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+header h1{
+    font-family:'Titulo principal';
+    text-align:center;
+    font-size:2.2em;
+}
+
+#blog-post{
+    margin-top:50px;
+    margin-left:70px;
+    margin-right:70px;
+}
+
+#blog-post > h1{
+    font-family:'Titulo secundario';
+    font-size:1.8em;
+    margin-bottom:50px;
+}
+
+main section#signs{
+    margin:0 auto;
+    width:45%;
+    text-align: center;
+    vertical-align:middle;
+    padding: 20px;    
+}
+
+main section#signs img{
+    display: inline-block;
+    margin: 5px;
+}
+
+main#reads h1{
+    font-family:'Titulo secundario';
+    font-size:1.8em;
+    margin-top:100px;
+    margin-bottom:50px;
+}
+
+main#reads p{
+    margin-top:50px;
+}
+
+.bold{
+    font-weight:bold;
+}
+
+.center{
+    text-align: center;
+}
+
+
+h2{
+    font-weight: normal;
+    font-family: 'Titulo secundario';
+}
+
+
+.personal-info{
+    margin-top:150px;
+}
+
+.personal-info.icons ul li{
+    list-style:none;
+}
+
+.personal-info.icons ul li a{
+    font-family:'Titulo secundario';
+}
+
+
+li{
+    margin-top:10px;
+}
+
+.post-meta{
+    font-size:0.7em;
+    margin-top:5px;
+    margin-left:15px;
+}
+
+
+#blog-post p{
+    line-height:1.4;
+}
+
+
+#blog-index a{
+    font-family:'Titulo secundario';
+    list-style:none;
+}
+
+#blog-index .year{
+    margin-top:80px;
+}
+
+#blog-index{
+    margin-left:40px;
+    margin-top:90px;
+}
+
+
+/* Estilo para listas anidadas */
+
+ul ul > li:last-child{
+    margin-bottom:30px;
+}
+
+
+/* Estilo para enlaces */
+
+
+a{
+    text-decoration:none;
+}
+
+/* Estilos para imagenes */
+p.imagen{
+    max-width:60%;
+    margin:50px auto;
+    text-align:center;
+}
+
+
+p.imagen > img{
+    max-width:100%;
+}
+
+
+/* Barra de enlaces  */
+/* NOTA: el selector header+ul solo se usa en los artículos del blog antiguo*/
+nav{
+    font-family:'Titulo secundario';
+}
+
+nav ul, header+ul{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+nav ul li, header+ul li{
+    list-decoration:none;
+    display:inline-block;
+    margin-right:50px;
+}
+
+
+
+
+/* Estilos para el footer  */
+hr{
+    margin:50px;
+    border:none;
+    height:1px;
+}
+
+hr + p{
+    text-align:right;
+    font-style:italic;
+}
+
+.aviso{
+    font-size:0.7em;
+}
+
+
+/* Estilo de código preformateado */
+
+code{
+    font-size:1.3em;
+}
+
+pre{
+    border:1px solid black;
+    border-radius: 5px;
+    padding:5px;
+    width:90%;
+    margin:0 auto;
+    overflow:hidden;
+    white-space: pre-wrap;
+}
+
+pre code{
+    font-size:1.0em;
+    font-weight:normal;
+}
+
+
+/*  Estilo para anotaciones  */
+blockquote{
+    padding:3px 10px;
+    border-left:3px solid black;
+}
+
+
+
+
+/*  Responsive   */
+
+
+@media all and (max-width: 900px ){
+    body{
+	font-size:1.3em;
+        width:80%;
+    }
+
+    main section#signs{
+        width:90%;
+        padding: 5px;    
+    }
+
+    main section#signs img{
+        max-width:20%;
+    }
+
+    #blog-index{
+        margin-left:20px;
+    }
+
+}
+
+
+@media all and (max-width: 600px ){
+    body{
+	    font-size:1.3em;
+        width:95%;
+    }
+
+    header h1{
+	    font-size:1.8em;
+    }
+
+    .post-meta{
+	    font-size:0.6em;
+    }
+
+    code{
+	    font-size:0.9em;
+    }
+    pre{
+	    width:90%;
+	    font-size:0.8em;
+    }
+
+    p.imagen{
+        max-width:90%;
+    }
+
+    #blog-post{
+        margin-right:5px;
+        margin-left:5px;
+    }
+
+    main section#signs{
+        width:90%;
+        padding: 5px;    
+    }
+
+    main section#signs img{
+        max-width:20%;
+    }
+
+    #blog-index{
+        margin-left:20px;
+    }
+
+}
+
+
+@media all and (max-width: 400px ){
+    body{
+	    font-size:1.3em;
+        width:95%;
+    }
+
+    header h1{
+	    font-size:1.6em;
+    }
+
+    .post-meta{
+	    font-size:0.6em;
+    }
+
+    code{
+	    font-size:0.9em;
+    }
+    pre{
+	    width:90%;
+	    font-size:0.8em;
+    }
+
+    p.imagen{
+        max-width:90%;
+    }
+
+    #blog-post{
+        margin-right:5px;
+        margin-left:5px;
+    }
+
+    main section#signs{
+        width:90%;
+        padding: 5px;    
+    }
+
+    main section#signs img{
+        max-width:20%;
+    }
+
+    #blog-index{
+        margin-left:5px;
+    }
+
+}
+
+
+
+
+
+
+
+
+/*  Colores  */
+
+
+body{background-color: white;  color:black;}
+
+h1{color:#c41f04;} */
+
+main h1{color:#c41f04;}
+
+main h2{color:#c41f04;}
+
+main h3{color:#c41f04;}
+
+.aviso{color: #c41f04;}
+
+.black{color:#c41f04;}
+
+a{color:#c41f04;}
+
+hr{background-color:silver;}
+
+code{color:#f58002;}
+
+.post-meta{color:#737373;}
+
+.year{color:#737373; border-bottom:1px solid silver;}
+
+pre{border-color:silver;background:#F9F9F9;}
+
+pre code{color:black;}
+
+blockquote{border-left-color: #f58002;}

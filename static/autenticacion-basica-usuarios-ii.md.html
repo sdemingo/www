@@ -1,0 +1,105 @@
+<html>
+  <head>
+    <title>panic_error!</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="stylesheet" href="../estilo.css">
+  </head>
+  <body>
+    <header>
+      <h1>panic_error!</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Inicio</a></li>   
+        <li><a href="../blog/index.html">Blog</a></li>   
+      </ul>
+    </nav>
+    <main> 
+      <section id="signs">
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="../img/insignia_cc.png" /></a>
+        <a href="https://blogblog.es"><img src="../img/insignia_blogblog.png" /></a>
+        <img src="../img/insignia_no_ai.png" />
+      </section>
+      <section id="blog-post">
+	    <h1>Autenticación básica de usuarios (II)</h1>
+<p>Hace unos días publiqué un post sobre <a href="../posts.html/autenticacion-basica-usuarios-i.md.html">como realizar una conexión segura en un
+servidor web en Go</a>. La idea final es autenticar usuarios de forma segura tal y
+como voy a terminar de explicar en este artículo.</p>
+<p>Una vez tenemos un canal seguro hacia el servidor lo que tenemos que hacer ahora
+es crear un sistema de sesiones para detectar que peticiones HTTP provienen de
+un usuario que ya ha sido autenticado y cuales no. En la comunidad de Go existen
+varios frameworks que tienen ya construidos sistemas de sesiones y es posible
+que el más usado a día de hoy sea el que está contenido en <a href="http://www.gorillatoolkit.org/">Gorilla</a>, un <em>toolkit</em>
+que implementa en varios paquetes la principal funcionalidad que necesita
+cualquier aplicación web para empezar a funcionar de forma más o menos seria.
+Por mi parte únicamente quiero construir un sistema sencillo que ni siquiera voy
+a soportar sobre un almacenamiento persistente. La idea es sencilla y la <a href="https://gist.github.com/sdemingo/79d5b6651b728badbe46">tenéis
+desarrollada por completo en este gist</a>. </p>
+<p>Inicialmente partimos de una estructura para la sesión de trabajo del usuario:</p>
+<pre><code>type Session struct {
+        Key       string
+        User      *User
+        LoginTime time.Time
+        LastTime  time.Time
+}
+</code></pre>
+<p>En esta sesión se almacenan, además de la propia clave de sesión de la que ahora
+hablaremos, el usuario al que pertenece y el momento en que la usó por última
+vez. Este último valor nos es útil para poder ir <a href="https://gist.github.com/sdemingo/79d5b6651b728badbe46#file-sessions-go-L30">borrando en un <em>goroutine</em>
+aparte las sesiones que consideramos caducadas</a> porque el usuario no las cerró
+correctamente.</p>
+<p>Cuando un usuario se conecte por primera vez y se compruebe sus credenciales
+(nombre de usuario y contraseña) en la base de datos, sistema de ficheros,
+&#x2026; se generará una nueva sesión con una clave aleatoria. Usaremos esta clave
+además para indexar esa nueva sesión en un mapa.</p>
+<pre><code>func randKey() string {
+        b := make([]byte, 8)
+        rand.Read(b)
+        return fmt.Sprintf("%x", b)
+}
+
+func NewSession(u *User) *Session {
+        key := randKey()
+        s := &amp;Session{key, u, time.Now(), time.Now()}
+        sessionTable[key] = s
+        return s
+}
+</code></pre>
+<p>Este clave de sesión será <a href="https://gist.github.com/sdemingo/79d5b6651b728badbe46#file-server-go-L74">enviada al cliente en forma de cookie</a> para que la
+rebote en todas sus peticiones siguientes. Cada petición hacia el servidor que
+contenga un token de sesión entre sus cookies será aceptada. Se comprobará que
+este token conduce a una sesión válida o en caso contrario se reconducirá al
+cliente al formulario de login.</p>
+<pre><code>func welcome(w http.ResponseWriter, r *http.Request) {
+        _, err := GetSession(r)
+        if err != nil {
+                Exit(w, r)
+                return
+        }
+
+        tmpl := template.Must(template.ParseFiles("welcome.html"))
+        if err := tmpl.Execute(w, nil); err != nil {
+                log.Printf("%v", err)
+                return
+        }
+}
+</code></pre>
+<p>Al no tener soporte persistente para este mecanismo de sesiones, cualquier
+reinicio del servicio eliminaría las sesiones, expulsando a cualquier usuario
+que estuviera trabajando en ese momento en nuestra aplicación. </p>
+<p>Para terminar, una característica que podríamos implementar sería la posibilidad
+de recuperar la clave de sesión bien de las cookies del navegador o quizás
+usando la librería <code>localStorage</code> de almacenamiento local soportada por HTML5 y
+evitar así que el usuario tuviera que abrir una nueva sesión cada vez que abra
+el navegador e intente entrar en nuestra aplicación.</p>
+<hr />
+<p>Marzo 2016</p>
+      </section>
+    </main>
+  </body>
+</html>

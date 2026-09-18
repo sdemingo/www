@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <title>panic_error!</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="stylesheet" href="../estilo.css">
+  </head>
+  <body>
+    <header>
+      <h1>panic_error!</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Inicio</a></li>   
+        <li><a href="../blog/index.html">Blog</a></li>   
+      </ul>
+    </nav>
+    <main> 
+      <section id="signs">
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="../img/insignia_cc.png" /></a>
+        <a href="https://blogblog.es"><img src="../img/insignia_blogblog.png" /></a>
+        <img src="../img/insignia_no_ai.png" />
+      </section>
+      <section id="blog-post">
+	    <h1>Mi cuaderno de notas</h1>
+<p>Hoy por fin me he decidido a escribir un artículo sobre mi sistema de gestión de notas. Es algo que tenía pendiente de hacer desde hace tiempo y lo había dejado en la lista de artículos pendientes demasiado tiempo. Gestionar las notas y apuntes del día a día ha sido para mi siempre un tema que he necesitado revisar permanentemente. Desde que era joven he necesitado cuadernos y agendas para intentar recordarlo todo. Envidio a la gente que es capaz de llevar su vida en su cabeza. Yo desde luego no puedo. Siempre he buscado sistemas fáciles de usar, fáciles de gestionar y que pudiera llevar siempre encima.</p>
+<p>Como podéis imaginar que he pasado por casi todos los sistemas: agendas, cuadernos «para todo», <em>bullet journal</em>, Google Keep, OrgZly, Evernote, etc. Desde hace aproximadamente siete u ocho años he conseguido consolidar un mecanismo sencillo, portable y de fácil acceso a través de todos mis dispositivos móviles y fijos. Este sistema no es ni más ni menos que un repositorio Git privado. Este repositorio lo visito, edito y sincronizo cómodamente desde cualquier equipo usando Emacs. Desde el teléfono o desde la tablet uso <a href="https://www.zettelnotes.com/">ZettelNotes</a>. Una aplicación pensada para el sistema <a href="https://es.wikipedia.org/wiki/Zettelkasten">ZettelKasten</a> que yo no uso, pero que me permite sincronizar y visualizar un repo Git perfectamente. El <em>repo</em> en cuestión tiene el siguiente aspecto:</p>
+<pre><code>notebook/
+    ├── articulos
+    ├── bici
+    ├── bin
+    ├── ies
+    ├── img
+    ├── libros
+    ├── notas
+    └── tareas
+        ├── 20251215121942.md
+        ├── 20260423094329.md
+        └── ...
+</code></pre>
+<p>El directorio que más uso en el día a día es <code>notas</code>. En el guardo ficheros en formato Markdown sobre aspectos de mi vida diaria. Cosas que tengo que recordar, listas de la compra, detalles sobre chapuzas, apuntes sobre reuniones, etc. Yo lo veo como un gran panel de <em>post-it</em>. No tiene subdirectorios porque quiero evitar navegaciones profundas, así que es una gran acumulación de ficheros. Cuando quiero buscar algo solo tengo que usar <code>grep</code> o el sistema de búsqueda de ZettelNotes. El directorio <code>ies</code> es algo parecido a notas pero solo para temas de trabajo y del instituto.</p>
+<p>Otro directorio importante es <code>tareas</code>. En el guardo un fichero diferente por cada tarea que tengo pendiente por completar. Es un fichero sencillo, donde en el título escribo la tarea y en cuerpo del texto puedo incluir datos adicionales que me interesen. Cada fichero se nombra con la marca de tiempo en que se creó. Cuando la tarea se completa simplemente borro su fichero. Para llevar la cuenta del histórico de tareas completadas uso Git y recupero la lista de ficheros borrados en ese directorio con un pequeño script llamado <code>tareas-borradas</code>:</p>
+<pre><code>echo &quot; Creada    -       Fichero            -  Título&quot;
+echo &quot; ======            =======               ======&quot;
+git log -n $max_limit --diff-filter=D --pretty=format:'%H %ad' --date=short -- tareas | \
+while read commit date; do
+  git show --diff-filter=D --name-only --pretty=format: &quot;$commit&quot; -- tareas | \
+  while read file; do
+    title=$(git show &quot;$commit&quot;^:&quot;$file&quot; 2&gt;/dev/null | head -n 1)
+    echo &quot;$date - $file - $title&quot;
+  done
+done
+</code></pre>
+<p>El directorio <code>articulos</code> tiene artículos que voy guardando de entre todo lo que leo por ahí. Normalmente si un artículo me gusta suelo guardarme en enlace en un fichero dentro del directorio <code>notas</code>. Tengo varios ficheros llamados <code>notas/enlaces2026.md</code>, <code>notas/enlaces2025.md</code>, ... Pero cuando quiero conservar un artículo porque realmente me ha gustado mucho y creo que merece mucho la pena, directamente los descargo, lo limpio y lo guardo en formato Markdown en este directorio.</p>
+<p>El directorio <code>bici</code> guarda notas sobre la bicicleta, rutas míticas en formato GPX, ficheros CSV con estadísticas e históricos, tutoriales sobre mantenimiento, bitácoras sobre las chapuzas que voy haciéndoles a mis bicis, etc. El directorio <code>libros</code> es algo parecido al anterior pero para la lectura. En el guardo la lista con todo lo que leo y estoy leyendo. Reseñas y notas sobre cada libro que termino y que suelo escribir para evitar olvidarlo. Hay también un subdirectorio llamado <code>citas</code> donde meto un archivo Markdown por cada autor, con citas que voy recopilando de sus libros.</p>
+<p>Por último os hablaré de los dos únicos directorios que manejan ficheros que no son Markdown. Por un lado tengo el directorio <code>img</code> donde añado imágenes necesarias para algunas notas que tengo en <code>notas</code>. Intento evitar almacenar imágenes siempre pero hay veces que no tengo otra opción: diagramas, fotografías, capturas, etc. En ese caso las dejo siempre en este directorio. Y otro directorio especial es <code>bin</code>. En el recopilo todos los <em>scripts</em> artesanales que he ido desarrollando para mi día a día y que necesito en cada una de las máquinas donde trabajo. </p>
+<p>Es un sistema que nació de forma improvisada y que ha ido creciendo año a año. (ahora mismo tiene 448 archivos!). No tiene dependencias externas al margen de ZettelNotes que simplemente me sirve para editar y sincronizar por Git los ficheros en el móvi y por ello, tampoco la considero crítica. Seguramente no os parezca el mejor pero para mi lo importante es que me sirve y que lo tengo totalmente integrado en mi día a día tanto desde el móvil como desde los equipos de sobremesa con los que trabajo. Y esto es justo lo más importante del sistema. Me sirve y satisface todas mis necesidades y mientras lo haga, lo seguiré usando.</p>
+<hr />
+<p>Mayo 2026</p>
+      </section>
+    </main>
+  </body>
+</html>
